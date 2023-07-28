@@ -30,6 +30,8 @@ REMOVE_WORDS = [
     "made popular by",
     "version",
     "medley",
+    "c letra",
+    "letra"
 ]
 
 
