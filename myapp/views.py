@@ -1,19 +1,36 @@
-from rest_framework import viewsets
-from .models import Item
-from .serializers import ItemSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
-import yt_dlp
-
-
-class ItemViewSet(viewsets.ModelViewSet):
-    queryset = Item.objects.all()
-    serializer_class = ItemSerializer
-
+from yt_dlp import YoutubeDL
+from pydub import AudioSegment
+import os
 
 class DownloadView(APIView):
     def post(self, request, *args, **kwargs):
-        urls = request.data
-        for url in urls:
-            yt_dlp.YoutubeDL().download([url])
-        return Response({"message": "Download completed."})
+        urls = request.data  # Expect a list of URLs
+        files = self.download_songs(urls)
+        self.convert_files(files)
+        return Response({"message": "Download and conversion completed."})
+
+    def download_songs(self, urls):
+        download_options = {
+            'format': 'bestaudio/best',
+            'outtmpl': './tmp/%(title)s.%(ext)s',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'wav',
+                'preferredquality': '192',
+            }],
+            'nocheckcertificate': True,
+        }
+        with YoutubeDL(download_options) as ydl:
+            ydl.download(urls)
+        files = os.listdir('./tmp')
+        return files
+
+    def convert_files(self, files):
+        for file in files:
+            if file.endswith('.wav'):
+                sound = AudioSegment.from_wav('./tmp/' + file)
+                sound = sound.set_channels(2)
+                sound = sound.set_frame_rate(44100)
+                sound.export('./tmp/' + file, format="wav")
