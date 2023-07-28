@@ -107,3 +107,4 @@ def rename_files_in_directory(directory: str) -> None:
     """Get a list of files in a directory and rename them."""
     files = os.listdir(directory)
     rename_files(files)
+
