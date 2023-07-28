@@ -40,7 +40,8 @@ build/
 .vscode/
 
 # media files
-./output
+/output
+/tmp
 *mkv
 *webm
 *mp3
