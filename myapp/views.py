@@ -12,10 +12,9 @@ class DownloadView(APIView):
     parser_classes = [PlainTextParser]
 
     def post(self, request, format=None):
-        dropbox_token = os.getenv('DROPBOX_TOKEN')
         urls = extract_youtube_urls(request.data)
         download_from_youtube(urls)
         rename_files_in_directory('tmp')
-        uploader = FileUploader('tmp', '/musicas-pai', dropbox_token)
+        uploader = FileUploader('tmp', '/musicas-pai', os.getenv("DROPBOX_TOKEN"))
         uploader.upload_files()
         return Response({"status": "success"}, status=200)
