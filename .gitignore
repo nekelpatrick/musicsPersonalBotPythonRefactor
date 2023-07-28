@@ -1,0 +1,46 @@
+# Ignore the Python compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Ignore the virtual environment files
+venv/
+env/
+
+# Ignore all SQLite database files
+*.sqlite3
+*.sqlite3-journal
+
+# Ignore all logs
+logs/
+*.log
+
+# Ignore all media files
+media/
+
+# Ignore all static files
+static/
+
+# Ignore all local settings
+myproject/settings/local.py
+
+# Ignore all .env files
+.env
+
+# Ignore the Python distribution / build files
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Ignore the IDE / editor folders
+.idea/
+.vscode/
+
+# media files
+./output
+*mkv
+*webm
+*mp3
