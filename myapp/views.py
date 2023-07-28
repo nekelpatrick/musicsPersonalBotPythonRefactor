@@ -3,10 +3,12 @@ from rest_framework.response import Response
 from yt_dlp import YoutubeDL
 from pydub import AudioSegment
 import os
+from .utils import extract_urls
+
 
 class DownloadView(APIView):
     def post(self, request, *args, **kwargs):
-        urls = request.data  # Expect a list of URLs
+        urls = extract_urls(request.data)  # Extract URLs from user input
         files = self.download_songs(urls)
         self.convert_files(files)
         return Response({"message": "Download and conversion completed."})
