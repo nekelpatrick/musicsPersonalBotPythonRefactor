@@ -41,6 +41,7 @@ build/
 
 # media files
 /output
+/input
 /tmp
 *mkv
 *webm
