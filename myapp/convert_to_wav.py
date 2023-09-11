@@ -34,6 +34,11 @@ def convert_to_wav(directory: str) -> None:
                 file_name, ext = os.path.splitext(file)
                 output_path = os.path.join(root, f"{file_name}.wav")
 
+                # Skip the conversion if the file is already in .wav format
+                if ext.lower() == ".wav":
+                    logging.info(f"File {file} is already in .wav format. Skipping.")
+                    continue
+
                 # Skip the file if it's not an audio file
                 if ext.lower() not in [
                     ".mp3",
@@ -59,13 +64,12 @@ def convert_to_wav(directory: str) -> None:
                     logging.error(f"Error converting file: {file}. Error: {e}")
                     continue
 
-                # Delete the original file after conversion if it's not already a .wav file
-                if ext.lower() != ".wav":
-                    try:
-                        os.remove(file_path)
-                        logging.info(f"Deleted original file: {file}")
-                    except Exception as e:
-                        logging.error(f"Error deleting file: {file}. Error: {e}")
+                # Delete the original file after conversion
+                try:
+                    os.remove(file_path)
+                    logging.info(f"Deleted original file: {file}")
+                except Exception as e:
+                    logging.error(f"Error deleting file: {file}. Error: {e}")
 
                 pbar.update(1)
 
