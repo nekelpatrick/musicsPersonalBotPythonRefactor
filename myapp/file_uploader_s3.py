@@ -63,12 +63,16 @@ class FileUploader:
         print("Starting upload...")
         base_folder_name = self.get_current_month_name()
         folder_name = self.get_unique_folder_name(base_folder_name)
+
+        # Limit to 20 files
+        files_to_upload = os.listdir(folder_path)[:20]
+
         with ThreadPoolExecutor(max_workers=5) as executor:
             executor.map(
                 self.upload_file,
-                os.listdir(folder_path),
-                [folder_path] * len(os.listdir(folder_path)),
-                [folder_name] * len(os.listdir(folder_path)),
+                files_to_upload,
+                [folder_path] * len(files_to_upload),
+                [folder_name] * len(files_to_upload),
             )
         print("Upload completed.")
 
