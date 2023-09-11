@@ -6,6 +6,7 @@ from pydub import AudioSegment
 
 logging.basicConfig(level=logging.INFO)
 
+
 def get_file_count(directory):
     """Returns the total number of valid audio files in the directory and all its subdirectories."""
     count = 0
@@ -14,15 +15,18 @@ def get_file_count(directory):
         directories.append(root)
         for file in files:
             _, ext = os.path.splitext(file)
-            if ext.lower() in ['.mp3', '.flac', '.ogg', '.m4a', '.wma', '.wav']:
+            if ext.lower() in [".mp3", ".flac", ".ogg", ".m4a", ".wma", ".wav"]:
                 count += 1
     return count, directories
+
 
 def convert_to_wav(directory: str) -> None:
     """Converts all audio files in the given directory to wav format."""
     total_files, all_directories = get_file_count(directory)
     processed_directories = []
-    with tqdm(total=total_files, ncols=70, bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt}') as pbar:
+    with tqdm(
+        total=total_files, ncols=70, bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}"
+    ) as pbar:
         for root, dirs, files in os.walk(directory):
             pbar.set_description(f"Processing {root.split('/')[-1]}")
             for file in files:
@@ -31,12 +35,21 @@ def convert_to_wav(directory: str) -> None:
                 output_path = os.path.join(root, f"{file_name}.wav")
 
                 # Skip the file if it's not an audio file
-                if ext.lower() not in ['.mp3', '.flac', '.ogg', '.m4a', '.wma', '.wav']:
+                if ext.lower() not in [
+                    ".mp3",
+                    ".flac",
+                    ".ogg",
+                    ".m4a",
+                    ".wma",
+                    ".webm",
+                ]:
                     logging.warning(f"Unsupported file type: {file}. Skipping.")
                     continue
 
                 try:
-                    audio = AudioSegment.from_file(file_path, format=ext.lower().replace('.', ''))
+                    audio = AudioSegment.from_file(
+                        file_path, format=ext.lower().replace(".", "")
+                    )
                     audio = audio.set_channels(2)
                     audio = audio.set_frame_rate(44100)
                     audio.export(output_path, format="wav")
@@ -47,7 +60,7 @@ def convert_to_wav(directory: str) -> None:
                     continue
 
                 # Delete the original file after conversion if it's not already a .wav file
-                if ext.lower() != '.wav':
+                if ext.lower() != ".wav":
                     try:
                         os.remove(file_path)
                         logging.info(f"Deleted original file: {file}")
@@ -60,6 +73,7 @@ def convert_to_wav(directory: str) -> None:
     logging.info(f"Total files processed: {pbar.n}")
     logging.info(f"Total directories processed: {len(processed_directories)}")
     logging.info(f"Directories processed: {processed_directories}")
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
