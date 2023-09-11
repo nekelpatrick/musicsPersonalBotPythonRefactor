@@ -42,6 +42,14 @@ class DownloadView(APIView):
             rename_files_in_directory(local_folder_path)
             convert_to_wav(local_folder_path)
 
+            # Check the number of files in local_folder_path
+            num_files = len(os.listdir(local_folder_path))
+            if num_files > 20:
+                return Response(
+                    {"status": "error", "message": "More than 20 files to upload"},
+                    status=400,
+                )
+
             uploader = FileUploader(
                 aws_access_key_id, aws_secret_access_key, bucket_name
             )
