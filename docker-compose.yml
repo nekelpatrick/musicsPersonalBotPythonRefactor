@@ -1,0 +1,8 @@
+
+services:
+  api:
+    build: .
+    volumes:
+      - .:/myapp
+    ports:
+      - "8000:8000"
