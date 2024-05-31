@@ -1,8 +1,8 @@
 import boto3
-from botocore.exceptions import NoCredentialsError, BotoCoreError, ClientError
 from concurrent.futures import ThreadPoolExecutor
 import os
 from datetime import datetime
+import logging
 
 
 class FileUploader:
@@ -47,20 +47,17 @@ class FileUploader:
 
     def upload_file(self, file_name, folder_path, folder_name):
         try:
-            print(f"Uploading {file_name} to {folder_name}...")
+            logging.info(f"Uploading {file_name} to {folder_name}...")
             self.s3.upload_file(
                 os.path.join(folder_path, file_name),
                 self.bucket_name,
                 f"{folder_name}/{file_name}",
             )
-            print(f"{file_name} uploaded successfully")
-        except NoCredentialsError:
-            print("Credentials not available")
-        except (BotoCoreError, ClientError) as error:
-            print(f"Error uploading {file_name}. Error: {error}")
+        except Exception as e:
+            logging.error(f"Error uploading {file_name}. Error: {e}")
 
     def upload_files(self, folder_path):
-        print("Starting upload...")
+        logging.info("Starting upload...")
         base_folder_name = self.get_current_month_name()
         folder_name = self.get_unique_folder_name(base_folder_name)
 
@@ -74,7 +71,7 @@ class FileUploader:
                 [folder_path] * len(files_to_upload),
                 [folder_name] * len(files_to_upload),
             )
-        print("Upload completed.")
+        logging.info("Upload completed.")
 
 
 # Usage example

@@ -46,3 +46,5 @@ build/
 *mkv
 *webm
 *mp3
+.venv/*
+.venv

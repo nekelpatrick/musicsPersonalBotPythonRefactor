@@ -39,9 +39,7 @@ def extract_youtube_urls(data: str) -> List[str]:
     """Extract YouTube URLs from a text string."""
     if not isinstance(data, str):
         raise TypeError("Input data is not a string.")
-    regex = (
-        r"(https?:\/\/(www\.)?youtube\.com\/watch\?v=.{11}|https?:\/\/youtu.be\/.{11})"
-    )
+    regex = r"(https?:\/\/(www\.)?youtube\.com\/watch\?v=.{11}|https?:\/\/youtu.be\/.{11})"
     matches = re.findall(regex, data)
     if not matches:
         raise ValueError("No YouTube URLs found in the input data.")
@@ -61,11 +59,7 @@ def format_file_name(file_name: str) -> str:
     """Format a file name by removing undesired characters and words."""
     file_name, ext = os.path.splitext(file_name)
     file_name = file_name.lower()
-    file_name = (
-        unicodedata.normalize("NFD", file_name)
-        .encode("ascii", "ignore")
-        .decode("utf-8")
-    )
+    file_name = unicodedata.normalize("NFD", file_name).encode("ascii", "ignore").decode("utf-8")
     file_name = re.sub(r"[&=@#/\(\)\[\]\{\},?!._]", " ", file_name)
     file_name = file_name.replace("mp3", "")
     for word in REMOVE_WORDS:
@@ -78,31 +72,45 @@ def format_file_name(file_name: str) -> str:
     return file_name + ext
 
 
+import logging
+
+# Configure logging at the start of your script
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+
+
 def download_from_youtube(urls: List[str]) -> bool:
     """Download YouTube videos as audio files."""
 
     def download_url(url: str):
+        logging.debug(f"Downloading URL: {url}")
         command = [
             "yt-dlp",
+            "--verbose",
             "-x",  # Extract audio
             "--audio-format",
             "wav",  # Save as wav
             "--postprocessor-args",
-            "-ac 2 -ar 44100",  # Set number of audio channels and sample rate
+            "-ac 2 -ar 44100",  # Audio channels and sample rate
             "-o",
-            "tmp/%(title)s.%(ext)s",  # Output file name format
-            url,  # The URL to download
+            "tmp/%(title)s.%(ext)s",  # Output file format
+            url,
         ]
+
         process = subprocess.run(command, capture_output=True, text=True)
         if process.returncode != 0:
-            raise RuntimeError(
-                f"'yt-dlp' command failed with output:\n{process.stdout}"
-            )
+            logging.error(f"'yt-dlp' command failed for URL {url} with error: {process.stderr}")
+            raise RuntimeError(f"'yt-dlp' command failed with error: {process.stderr}")
+        else:
+            logging.debug(f"Successfully downloaded {url}")
 
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        executor.map(download_url, urls)
-
-    return True
+    try:
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            executor.map(download_url, urls)
+        logging.info("All downloads completed successfully.")
+        return True
+    except Exception as e:
+        logging.error(f"Download failed with an exception: {str(e)}")
+        return False
 
 
 def rename_files(files: List[str]) -> None:
